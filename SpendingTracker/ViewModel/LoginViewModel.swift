@@ -6,18 +6,18 @@
 //  Copyright © 2019 Alfian Losari. All rights reserved.
 //
 
-import Foundation
-import FirebaseAuth
 import AuthenticationServices
 import Combine
 import CryptoKit
+import FirebaseAuth
+import Foundation
 
 class LoginViewModel: NSObject, ObservableObject {
     
     @Published var loggedInUser: User?
     var auth = Auth.auth()
     
-    fileprivate var currentNonce: String?
+    var currentNonce: String?
     
     override init() {
         loggedInUser = auth.currentUser
@@ -36,7 +36,8 @@ class LoginViewModel: NSObject, ObservableObject {
       let hashedData = SHA256.hash(data: inputData)
       let hashString = hashedData.compactMap {
         return String(format: "%02x", $0)
-      }.joined()
+      }
+      .joined()
 
       return hashString
     }
@@ -44,7 +45,7 @@ class LoginViewModel: NSObject, ObservableObject {
     // Adapted from https://auth0.com/docs/api-auth/tutorials/nonce#generate-a-cryptographically-random-nonce
      private func randomNonceString(length: Int = 32) -> String {
        precondition(length > 0)
-       let charset: Array<Character> =
+       let charset: [Character] =
            Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
        var result = ""
        var remainingLength = length
@@ -101,7 +102,11 @@ extension LoginViewModel: ASAuthorizationControllerPresentationContextProviding 
 
 extension LoginViewModel: ASAuthorizationControllerDelegate {
     
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    func authorizationController(
+        controller: ASAuthorizationController
+        ,didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
+        
       if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
         guard let nonce = currentNonce else {
           fatalError("Invalid state: A login callback was received, but no login request was sent.")
@@ -115,27 +120,36 @@ extension LoginViewModel: ASAuthorizationControllerDelegate {
           return
         }
         // Initialize a Firebase credential.
-        let credential = OAuthProvider.credential(withProviderID: "apple.com",
-                                                  idToken: idTokenString,
-                                                  rawNonce: nonce)
+        let credential = OAuthProvider
+            .credential(
+                withProviderID: "apple.com"
+                ,idToken: idTokenString
+                ,rawNonce: nonce
+            )
         // Sign in with Firebase.
-        Auth.auth().signIn(with: credential) { (authResult, error) in
-          if let error = error {
-            // Error. If error.code == .MissingOrInvalidNonce, make sure
-            // you're sending the SHA256-hashed nonce as a hex string with
-            // your request to Apple.
-            print(error.localizedDescription)
-            return
-          }
-            
-          // User is signed in to Firebase with Apple.
-          // ...
+        
+        Auth
+            .auth()
+            .signIn(
+                with: credential
+            ) { _, error in
+                if let error = error {
+                    // Error. If error.code == .MissingOrInvalidNonce, make sure
+                    // you're sending the SHA256-hashed nonce as a hex string with
+                    // your request to Apple.
+                    print(error.localizedDescription)
+                    return
+                }
+                // User is signed in to Firebase with Apple.
+                // ...
+            }
         }
-      }
     }
-    
 
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    func authorizationController(
+        controller: ASAuthorizationController
+        ,didCompleteWithError error: Error
+    ) {
       // Handle error.
       print("Sign in with Apple errored: \(error)")
     }

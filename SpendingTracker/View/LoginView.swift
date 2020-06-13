@@ -10,7 +10,7 @@ import SwiftUI
 
 struct LoginView: View {
     
-    let action: () -> ()
+    let action: () -> Void
     
     var body: some View {
         ZStack {
@@ -27,8 +27,9 @@ struct LoginView: View {
 }
 
 struct LoginView_Previews: PreviewProvider {
+    
     static var previews: some View {
-        LoginView() {
+        LoginView {
             
         }
     }

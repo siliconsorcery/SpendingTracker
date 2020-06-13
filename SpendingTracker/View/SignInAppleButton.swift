@@ -6,16 +6,17 @@
 //  Copyright © 2019 Alfian Losari. All rights reserved.
 //
 
-import UIKit
-import SwiftUI
 import AuthenticationServices
+import SwiftUI
+import UIKit
 
 struct SignInAppleButton: UIViewRepresentable {
+    
     func makeCoordinator() -> SignInAppleButton.Coordinator {
         Coordinator(action: self.action)
     }
 
-    let action: () -> ()
+    let action: () -> Void
     
     func makeUIView(context: UIViewRepresentableContext<SignInAppleButton>) -> ASAuthorizationAppleIDButton {
         return ASAuthorizationAppleIDButton(authorizationButtonType: .signIn, authorizationButtonStyle: .black)
@@ -25,21 +26,20 @@ struct SignInAppleButton: UIViewRepresentable {
         uiView.addTarget(context.coordinator, action: #selector(Coordinator.buttonTapped(_:)), for: .touchUpInside)
     }
     
-    
     class Coordinator {
+        let action: () -> Void
         
-        let action: () -> ()
-        
-        init(action: @escaping() -> ()) {
+        init(
+            action: @escaping () -> Void
+        ) {
             self.action = action
         }
         
-        @objc fileprivate func buttonTapped(_ sender: Any) {
+        @objc
+        func buttonTapped(_ sender: Any) {
             action()
         }
         
-        
     }
-    
   
 }

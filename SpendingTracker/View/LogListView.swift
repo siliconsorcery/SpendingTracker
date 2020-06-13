@@ -6,10 +6,12 @@
 //  Copyright © 2019 Alfian Losari. All rights reserved.
 //
 
-import SwiftUI
 import Firebase
+import SwiftUI
 
 struct LogListView: View {
+    
+    @ObservedObject var repository = LogRepositoryViewModel()
     
     @State var isFilterListExpanded = false
     @State var isSortByListExpanded = false
@@ -18,17 +20,9 @@ struct LogListView: View {
     @State var isShowingCreateModalForm = false
     @State var isShowingEditModalForm = false
     
-    @State var selectedFilters: Set<Category> = [] {
-        didSet { self.refresh() }
-    }
-    @State var selectedSortOrder = SortOrder.descending {
-        didSet { self.refresh() }
-    }
-    @State var selectedSortFilter = SortFilter.date {
-        didSet { self.refresh() }
-    }
-    
-    @ObservedObject var repository = LogRepositoryViewModel()
+    @State var selectedFilters: Set<Category> = [] { didSet { self.refresh() } }
+    @State var selectedSortOrder = SortOrder.descending { didSet { self.refresh() } }
+    @State var selectedSortFilter = SortFilter.date { didSet { self.refresh() } }
     
     let filters = Category.allCases
     let sortOrders = SortOrder.allCases
@@ -38,7 +32,10 @@ struct LogListView: View {
         NavigationView {
             List {
                 VStack {
-                    AccordionButton(title: "Filters: \(self.selectedFilters.isEmpty ? "All" : "(\(self.selectedFilters.count))")", isExpanded: self.isFilterListExpanded) {
+                    AccordionButton(
+                        title: "Filters: \(self.selectedFilters.isEmpty ? "All" : "(\(self.selectedFilters.count))")"
+                        ,isExpanded: self.isFilterListExpanded
+                    ) {
                         self.isFilterListExpanded.toggle()
                     }
                     
@@ -52,9 +49,16 @@ struct LogListView: View {
                                         } else {
                                             self.selectedFilters.insert(category)
                                         }
+                                        self.refresh()
                                     }) {
                                         Text(category.rawValue.capitalized)
-                                            .bordered(isSelected: self.selectedFilters.contains(category), selectedTextColor: .white, defaultTextColor: .blue, selectedBackgroundColor: .blue, defaultBackgroundColor: .clear)
+                                            .bordered(
+                                                isSelected: self.selectedFilters.contains(category)
+                                                ,selectedTextColor: .white
+                                                ,defaultTextColor: .blue
+                                                ,selectedBackgroundColor: .blue
+                                                ,defaultBackgroundColor: .clear
+                                            )
                                     }
                                 }
                             }
@@ -66,7 +70,10 @@ struct LogListView: View {
                 }
                 
                 VStack {
-                    AccordionButton(title: "Sort By: \(selectedSortFilter.rawValue.capitalized)", isExpanded: self.isSortByListExpanded) {
+                    AccordionButton(
+                        title: "Sort By: \(selectedSortFilter.rawValue.capitalized)"
+                        ,isExpanded: self.isSortByListExpanded
+                    ) {
                         self.isSortByListExpanded.toggle()
                     }
                     
@@ -78,7 +85,13 @@ struct LogListView: View {
                                         self.selectedSortFilter = sort
                                     }) {
                                         Text(sort.rawValue.capitalized)
-                                            .bordered(isSelected: self.selectedSortFilter == sort, selectedTextColor: .white, defaultTextColor: .blue, selectedBackgroundColor: .blue, defaultBackgroundColor: .clear)
+                                            .bordered(
+                                                isSelected: self.selectedSortFilter == sort
+                                                ,selectedTextColor: .white
+                                                ,defaultTextColor: .blue
+                                                ,selectedBackgroundColor: .blue
+                                                ,defaultBackgroundColor: .clear
+                                            )
                                     }
                                 }
                             }
@@ -90,7 +103,10 @@ struct LogListView: View {
                 }
                 
                 VStack {
-                    AccordionButton(title: "Order By: \(selectedSortOrder.rawValue.capitalized)", isExpanded: self.isSortOrderListExpanded) {
+                    AccordionButton(
+                        title: "Order By: \(selectedSortOrder.rawValue.capitalized)"
+                        ,isExpanded: self.isSortOrderListExpanded
+                    ) {
                         self.isSortOrderListExpanded.toggle()
                     }
                     
@@ -102,7 +118,13 @@ struct LogListView: View {
                                         self.selectedSortOrder = sort
                                     }) {
                                         Text(sort.rawValue.capitalized)
-                                            .bordered(isSelected: self.selectedSortOrder == sort, selectedTextColor: .white, defaultTextColor: .blue, selectedBackgroundColor: .blue, defaultBackgroundColor: .clear)
+                                            .bordered(
+                                                isSelected: self.selectedSortOrder == sort
+                                                ,selectedTextColor: .white
+                                                ,defaultTextColor: .blue
+                                                ,selectedBackgroundColor: .blue
+                                                ,defaultBackgroundColor: .clear
+                                            )
                                     }
                                 }
                             }
@@ -114,58 +136,84 @@ struct LogListView: View {
                 }
                 
                 ForEach(self.repository.logs) { log in
-                    Button(action: {
-                        self.isShowingEditModalForm = true
-                    }) {
+                    Button(
+                        action: {
+                            self.isShowingEditModalForm = true
+                        }
+                    ) {
                         LogRow(spendingLog: log)
-                    }.sheet(isPresented: self.$isShowingEditModalForm) {
+                    }
+                    .sheet(
+                        isPresented: self.$isShowingEditModalForm
+                    ) {
                         LogEditView(editedSpending: log) {
                             self.update(log: $0)
                         }
                     }
                 }
-                .onDelete { (indexes) in
+                .onDelete { indexes in
                     self.delete(at: indexes)
                 }
             }
-                
             .navigationBarTitle("Spending Tracker")
-            .navigationBarItems(leading: Button(action: {
-                try? Auth.auth().signOut()
-            }, label: {
-                Image(systemName: "person.circle")
-                Text("Logout")
-            }), trailing:  Button(action: {
-                self.isShowingCreateModalForm = true
-            }, label: {
-                HStack {
-                    Image(systemName: "plus")
-                    Text("Add")
+            .navigationBarItems(
+                leading: Button(
+                    action: {
+                        try? Auth.auth().signOut()
+                    }
+                    ,label: {
+                        Image(systemName: "person.circle")
+                        Text("Logout")
+                    }
+                )
+                ,trailing: Button(
+                    action: {
+                        self.isShowingCreateModalForm = true
+                    }
+                    ,label: {
+                        HStack {
+                            Image(systemName: "plus")
+                            Text("Add")
+                        }
+                    }
+                )
+                .sheet(
+                    isPresented: self.$isShowingCreateModalForm
+                ) {
+                    LogEditView(editedSpending: nil) { log in
+                        self.repository.add(log: log)
+                    }
                 }
-            }).sheet(isPresented: self.$isShowingCreateModalForm, content: {
-                LogEditView(editedSpending: nil) { (log) in
-                    self.repository.add(log: log)
-                }
-            })).onAppear {
+            )
+            .onAppear {
                 self.refresh()
-            }.onDisappear {
+            }
+            .onDisappear {
                 self.repository.removeListener()
             }
         }
     }
     
     private func refresh() {
-        self.repository.observeLogs(selectedFilters: self.selectedFilters, selectedSortOrder: self.selectedSortOrder, selectedSortFilter: self.selectedSortFilter)
+        self.repository.observeLogs(
+            selectedFilters: self.selectedFilters
+            ,selectedSortOrder: self.selectedSortOrder
+            ,selectedSortFilter: self.selectedSortFilter
+        )
     }
     
     private func delete(at indexes: IndexSet) {
         for index in indexes {
-            self.repository.delete(log: self.repository.logs[index])
+            self.repository.delete(
+                log: self.repository.logs[index]
+            )
         }
     }
     
     private func update(log: SpendingLog) {
-        self.repository.update(log: log)
+        self.repository.update(
+            log: log
+        )
     }
 }
 
@@ -178,7 +226,10 @@ struct FilterListSelectionRow: View {
     
     var body: some View {
         VStack {
-            AccordionButton(title: "Filters: \(self.selectedFilters.isEmpty ? "All" : "(\(self.selectedFilters.count))")", isExpanded: self.isExpanded) {
+            AccordionButton(
+                title: "Filters: \(self.selectedFilters.isEmpty ? "All" : "(\(self.selectedFilters.count))")"
+                ,isExpanded: self.isExpanded
+            ) {
                 self.isExpanded.toggle()
             }
             
@@ -194,7 +245,13 @@ struct FilterListSelectionRow: View {
                                 }
                             }) {
                                 Text(category.rawValue.capitalized)
-                                    .bordered(isSelected: self.selectedFilters.contains(category), selectedTextColor: .white, defaultTextColor: .blue, selectedBackgroundColor: .blue, defaultBackgroundColor: .clear)
+                                    .bordered(
+                                        isSelected: self.selectedFilters.contains(category)
+                                        ,selectedTextColor: .white
+                                        ,defaultTextColor: .blue
+                                        ,selectedBackgroundColor: .blue
+                                        ,defaultBackgroundColor: .clear
+                                    )
                             }
                         }
                     }
@@ -211,7 +268,7 @@ struct AccordionButton: View {
     
     let title: String
     let isExpanded: Bool
-    let action: () -> ()
+    let action: () -> Void
     
     var body: some View {
         
@@ -231,12 +288,11 @@ struct AccordionButton: View {
     
 }
 
-
 struct LogRow: View {
     
     var spendingLog: SpendingLog
     
-    static private let currencyFormatter: NumberFormatter = {
+    private static let currencyFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.isLenient = true
         formatter.numberStyle = .currency
@@ -244,7 +300,7 @@ struct LogRow: View {
         return formatter
     }()
     
-    static private let dateFormatter: DateFormatter = {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd-MM-yyyy HH:mm"
         return formatter

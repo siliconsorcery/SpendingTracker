@@ -1,16 +1,24 @@
-# Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+# ignore all warnings from all pods
+inhibit_all_warnings!
 
 target 'SpendingTracker' do
-  # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # Pods for SpendingTracker
+  # Analytics helps you measure your users, product, and business.
+  # It unlocks insights into your app's funnel, core business metrics, and whether you have product-market fit.
+  # https://cocoapods.org/pods/Analytics
   pod 'Firebase/Analytics'
-  # Add the pods for any other Firebase products you want to use in your app
-  # For example, to use Firebase Authentication and Cloud Firestore
+
+  # User authenication id handled by Google Firebase Auth
+  # https://cocoapods.org/pods/FirebaseAuth
   pod 'Firebase/Auth'
+  
+  # Google Firebase Cloud Firestore is used from realtime and offline database services
+  # https://github.com/firebase/firebase-ios-sdk
   pod 'Firebase/Firestore'
 
-
+  # A tool to enforce Swift style and conventions.
+  # https://github.com/realm/SwiftLint
+  pod 'SwiftLint'
+  
 end

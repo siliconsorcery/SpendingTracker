@@ -22,15 +22,32 @@ struct BorderedTextModifier: ViewModifier {
             .padding(.all, 8)
             .background(isSelected ? selectedBackgroundColor : defaultBackgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(RoundedRectangle(cornerRadius: 8)
-                .stroke(lineWidth: 1)
-                .foregroundColor(selectedBackgroundColor))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(lineWidth: 1)
+                    .foregroundColor(selectedBackgroundColor)
+            )
     }
 }
 
 extension Text {
     
-    func bordered(isSelected: Bool, selectedTextColor: Color, defaultTextColor: Color, selectedBackgroundColor: Color, defaultBackgroundColor: Color) -> some View {
-        ModifiedContent(content: self, modifier: BorderedTextModifier(isSelected: isSelected, selectedTextColor: selectedTextColor, defaultTextColor: defaultTextColor, selectedBackgroundColor: selectedBackgroundColor, defaultBackgroundColor: defaultBackgroundColor))
+    func bordered(
+        isSelected: Bool
+        ,selectedTextColor: Color
+        ,defaultTextColor: Color
+        ,selectedBackgroundColor: Color
+        ,defaultBackgroundColor: Color
+    ) -> some View {
+        ModifiedContent(
+            content: self
+            ,modifier: BorderedTextModifier(
+                isSelected: isSelected
+                ,selectedTextColor: selectedTextColor
+                ,defaultTextColor: defaultTextColor
+                ,selectedBackgroundColor: selectedBackgroundColor
+                ,defaultBackgroundColor: defaultBackgroundColor
+            )
+        )
     }
 }

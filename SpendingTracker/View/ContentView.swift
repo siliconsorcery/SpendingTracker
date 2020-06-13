@@ -29,10 +29,7 @@ struct ContentView: View {
     }
 }
 
-
-
 struct HomeView: View {
-    
     var body: some View {
         Text("Home View")
     }
@@ -49,7 +46,7 @@ struct LoginSplashImage: View {
     var body: some View {
         Image("login")
             .resizable()
-            .aspectRatio(1/1, contentMode: .fill)
+            .aspectRatio(1 / 1, contentMode: .fill)
             .edgesIgnoringSafeArea(.all)
             .blur(radius: 3)
     }
@@ -74,13 +71,7 @@ struct LogoTitle: View {
                 Text("Built with Firestore DB & Firebase Auth")
                     .font(.headline)
                     .foregroundColor(.white)
-                
             }
-            
-            
-            
-            
         }
     }
 }
-

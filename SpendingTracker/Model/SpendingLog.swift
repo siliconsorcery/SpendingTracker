@@ -16,7 +16,13 @@ struct SpendingLog: Identifiable {
     let amount: Double
     let date: Date
     
-    init(id: String, name: String, category: Category, amount: Double, date: Date) {
+    init(
+        id: String
+        ,name: String
+        ,category: Category
+        ,amount: Double
+        ,date: Date
+    ) {
         self.id = id
         self.name = name
         self.category = category

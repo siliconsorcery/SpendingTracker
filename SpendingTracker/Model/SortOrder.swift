@@ -12,14 +12,14 @@ enum SortFilter: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
-    case date
-    case amount
+    case date = "date"
+    case amount = "amount"
 }
 
 enum SortOrder: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
-    case descending
-    case ascending
+    case descending = "descending"
+    case ascending = "ascending"
 }

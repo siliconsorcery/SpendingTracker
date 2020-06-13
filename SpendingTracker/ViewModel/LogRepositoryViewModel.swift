@@ -12,9 +12,10 @@ import SwiftUI
 
 class LogRepositoryViewModel: ObservableObject {
     
-    @Published var logs = [SpendingLog]()
+    @Published var logs: [SpendingLog] = []
     
     private let logsCollection = Firestore.firestore().collection("logs")
+
     private var listenerToken: ListenerRegistration?
     private var userId: String? {
         return Auth.auth().currentUser?.uid
@@ -23,82 +24,95 @@ class LogRepositoryViewModel: ObservableObject {
     func add(log: SpendingLog) {
         guard let userId = self.userId else { return }
         
-        logsCollection.document(log.id).setData([
-            "name": log.name,
-            "amount": log.amount,
-            "category": log.category.rawValue,
-            "date": log.date,
-            "userId": userId
-        ])
+        logsCollection
+            .document(log.id)
+            .setData(
+                [
+                    "name": log.name
+                    ,"amount": log.amount
+                    ,"category": log.category.rawValue
+                    ,"date": log.date
+                    ,"userId": userId
+                ]
+            )
     }
     
     func update(log: SpendingLog) {
         guard let userId = self.userId else { return }
 
-        logsCollection.document(log.id).updateData([
-            "name": log.name,
-            "amount": log.amount,
-            "category": log.category.rawValue,
-            "date": log.date,
-            "userId": userId
-        ])
+        logsCollection
+            .document(log.id)
+            .updateData(
+                [
+                    "name": log.name
+                    ,"amount": log.amount
+                    ,"category": log.category.rawValue
+                    ,"date": log.date
+                    ,"userId": userId
+                ]
+            )
     }
     
     func delete(log: SpendingLog) {
-        guard let _ = self.userId else { return }
+        guard self.userId != nil else { return }
         
-        logsCollection.document(log.id).delete()
+        logsCollection
+            .document(log.id)
+            .delete()
     }
     
-    func observeLogs(selectedFilters: Set<Category>, selectedSortOrder: SortOrder, selectedSortFilter: SortFilter) {
+    func observeLogs(
+        selectedFilters: Set<Category>
+        ,selectedSortOrder: SortOrder
+        ,selectedSortFilter: SortFilter
+    ) {
         removeListener()
         
         guard let userId = self.userId else { return }
         
         var query = logsCollection.whereField("userId", isEqualTo: userId)
-        if selectedFilters.count > 0 {
+        
+        if selectedFilters.isEmpty == false {
             let filters = selectedFilters.map { $0.rawValue }
-            query = query
-                .whereField("category", in: filters)
+            
+            query = query.whereField("category", in: filters)
         }
         
         self.listenerToken = query
-            .order(by: selectedSortFilter.rawValue, descending: selectedSortOrder == .descending ? true : false)
-            .addSnapshotListener(includeMetadataChanges: true, listener: { (snapshot, error) in
-                if let error = error {
-                    print(error.localizedDescription)
-                    return
-                }
-                guard let snapshot = snapshot else { return }
-                
-                for document in snapshot.documentChanges {
-                    let log = SpendingLog(id: document.document.reference.documentID, dictionary: document.document.data())
-
-                    switch document.type {
-                    case .added:
-                        self.logs.insert(log, at: Int(document.newIndex))
-                        
-                    case .modified:
-                        self.logs.remove(at: Int(document.oldIndex))
-                        self.logs.insert(log, at: Int(document.newIndex))
-                                 
-                    case .removed:
-                        self.logs.remove(at: Int(document.oldIndex))
+            .order(
+                by: selectedSortFilter.rawValue
+                ,descending: selectedSortOrder == .descending ? true : false
+            )
+            .addSnapshotListener(
+                includeMetadataChanges: true
+                ,listener: { snapshot, error in
+                 
+                    if let error = error {
+                        print(error.localizedDescription)
+                        return
                     }
+                    guard let snapshot = snapshot else { return }
                     
+                    for document in snapshot.documentChanges {
+                        let log = SpendingLog(
+                            id: document.document.reference.documentID
+                            ,dictionary: document.document.data()
+                        )
+
+                        switch document.type {
+                        case .added:
+                            self.logs.insert(log, at: Int(document.newIndex))
+                            
+                        case .modified:
+                            self.logs.remove(at: Int(document.oldIndex))
+                            self.logs.insert(log, at: Int(document.newIndex))
+                                     
+                        case .removed:
+                            self.logs.remove(at: Int(document.oldIndex))
+                        }
+                    }
                 }
-                
-            })
-            
-            
-//            .addSnapshotListener { (snapshot, error) in
-//                if let error = error {
-//                    print(error.localizedDescription)
-//                    return
-//                }
-//                guard let snapshot = snapshot else { return }
-//                self.logs = snapshot.documents.map { SpendingLog(id: $0.reference.documentID, dictionary: $0.data()) }
-//        }
+            )
     }
     
     func removeListener() {
@@ -116,7 +130,10 @@ class LogRepositoryViewModel: ObservableObject {
 
 extension SpendingLog {
     
-    init(id: String, dictionary: [String: Any]) {
+    init(
+        id: String
+        ,dictionary: [String: Any]
+    ) {
         self.id = id
         self.name = dictionary["name"] as? String ?? ""
         self.amount = dictionary["amount"] as? Double ?? 0
@@ -133,6 +150,5 @@ extension SpendingLog {
             self.date = Date()
         }
     }
-    
     
 }

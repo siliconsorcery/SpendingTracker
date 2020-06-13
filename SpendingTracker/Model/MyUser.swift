@@ -6,8 +6,8 @@
 //  Copyright © 2019 Alfian Losari. All rights reserved.
 //
 
-import Foundation
 import Firebase
+import Foundation
 
 struct MyUser {
     let email: String
@@ -16,6 +16,9 @@ struct MyUser {
 
 extension User {
     var myUser: MyUser {
-        return MyUser(email: email ?? "", displayName: displayName)
+        return MyUser(
+            email: email ?? ""
+            ,displayName: displayName
+        )
     }
 }

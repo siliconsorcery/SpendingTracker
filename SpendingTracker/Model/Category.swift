@@ -18,14 +18,14 @@ enum Category: String, CaseIterable, Identifiable, Hashable {
         hasher.combine(id)
     }
         
-    case housing
-    case food
-    case transportation
-    case utilities
-    case insurance
-    case medical
-    case saving
-    case investing
-    case payment
-    case personal
+    case housing = "housing"
+    case food = "food"
+    case transportation = "transportation"
+    case utilities = "utilities"
+    case insurance = "insurance"
+    case medical = "medical"
+    case saving = "saving"
+    case investing = "investing"
+    case payment = "payment"
+    case personal = "personal"
 }

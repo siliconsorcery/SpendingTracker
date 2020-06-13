@@ -6,9 +6,9 @@
 //  Copyright © 2019 Alfian Losari. All rights reserved.
 //
 
-import SwiftUI
 import Combine
 import Foundation
+import SwiftUI
 
 struct LogEditView: View {
     
@@ -17,16 +17,27 @@ struct LogEditView: View {
     @State var name = ""
     @State var category: Category = .personal
     @State var amount: Double = 0.0
-    @State var date: Date = Date()
+    @State var date = Date()
 
     var isValid: Bool {
         return !name.isEmpty && amount > 0
     }
     
-    let editedSpending: SpendingLog?
-    let saveAction: (SpendingLog) -> ()
+    var amountFix: Binding<String> {
+        Binding<String>(
+            get: { String(format: "%.02f", self.amount) },
+            set: {
+                if let value = NumberFormatter().number(from: $0) {
+                    self.amount = value.doubleValue
+                }
+            }
+        )
+    }
     
-    init(editedSpending: SpendingLog?, saveAction: @escaping (SpendingLog) -> ()) {
+    let editedSpending: SpendingLog?
+    let saveAction: (SpendingLog) -> Void
+    
+    init(editedSpending: SpendingLog?, saveAction: @escaping (SpendingLog) -> Void) {
         self.editedSpending = editedSpending
         self.saveAction = saveAction
         
@@ -39,7 +50,7 @@ struct LogEditView: View {
         
     }
     
-    static private let currencyFormatter: NumberFormatter = {
+    private static let currencyFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.isLenient = true
         formatter.numberStyle = .currency
@@ -47,7 +58,7 @@ struct LogEditView: View {
         return formatter
     }()
     
-    let filters = Category.allCases.map { $0 }
+    let filters = Array(Category.allCases)
     
     var body: some View {
         NavigationView {
@@ -60,7 +71,7 @@ struct LogEditView: View {
                     }
                     HStack {
                         Text("Amount")
-                        TextField("Amount", value: $amount, formatter: LogEditView.currencyFormatter)
+                        TextField("Amount", text: amountFix)
                     }
                 }
                 
@@ -69,7 +80,6 @@ struct LogEditView: View {
                         Text("Date")
                     }
                 }
-                
                 
                 Section {
                     Picker(selection: $category, label: Text("Category")) {
@@ -81,11 +91,17 @@ struct LogEditView: View {
                 }
             }
             .navigationBarTitle(self.editedSpending == nil ? "Create Spending" : "Edit Spending")
-            .navigationBarItems(trailing: Button(action: {
-                self.saveTapped()
-            }, label: {
-                Text("Save")
-            }).disabled(!self.isValid))
+            .navigationBarItems(
+                trailing: Button(
+                    action: {
+                        self.saveTapped()
+                    }
+                    ,label: {
+                        Text("Save")
+                    }
+                )
+                .disabled(!self.isValid)
+            )
         }
     }
     
@@ -106,7 +122,7 @@ struct LogEditView: View {
 
 struct LogEditView_Previews: PreviewProvider {
     static var previews: some View {
-        LogEditView(editedSpending: nil) { (log) in
+        LogEditView(editedSpending: nil) { _ in
             
         }
     }
